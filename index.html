@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noite Amaldiçoada 0.3.1</title>
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<div id="gameContainer">
+  <canvas id="canvas"></canvas>
+  <div id="hud">
+    <div id="hpBarWrap"><div id="hpLabel">VIDA</div><div id="hpBarBg"><div id="hpBarFill"></div></div></div>
+    <div id="timerBox"><div id="timerLabel">00:00</div><div id="killLabel">Abates: 0 · 💠 0</div></div>
+  </div>
+  <div id="xpBarWrap"><div id="xpBarBg"><div id="xpBarFill"></div></div><div id="levelLabel">Nível 1</div></div>
+  <div id="stageBadge">NOITE I · RUÍNAS DO CASTELO</div><div id="stageTimerLabel">45s até o chefe</div><div id="perfBadge">AUTO · -- FPS</div><div id="weaponBar"></div><div id="pauseHint">ESC para pausar</div>
+
+  <div id="overlay"><div id="overlayTitle"></div><div id="overlaySub"></div><div id="cardWrap"></div></div>
+
+  <div id="pauseScreen"><h2>PAUSADO</h2><div id="pauseOptions">
+    <div class="optionRow"><label>Volume dos Efeitos <span id="sfxVolLabel">80%</span></label><input type="range" id="sfxVolSlider" min="0" max="100" value="80"></div>
+    <div class="optionRow"><label>Volume da Música <span id="musicVolLabel">60%</span></label><input type="range" id="musicVolSlider" min="0" max="100" value="60"></div>
+    <div class="optionRow inline"><label>Mudo</label><input type="checkbox" id="muteCheckbox"></div>
+  </div><div id="pauseButtons"><button class="pauseBtn primary" id="resumeBtn">CONTINUAR</button><button class="pauseBtn" id="saveQuitBtn">SALVAR E SAIR</button><button class="pauseBtn" id="restartBtn">REINICIAR PARTIDA</button><button class="pauseBtn" id="quitBtn">MENU PRINCIPAL</button></div></div>
+
+  <div id="startScreen"><div class="menuPanel"><div class="eyebrow">ROGUELITE DE SOBREVIVÊNCIA</div><div class="menuCrest">✦</div><div class="menuSubtitleTop">CASTELO DAS SEIS NOITES</div><h1>NOITE AMALDIÇOADA <span class="versionBadge">0.3.1</span></h1><div class="menuDivider"></div><p>Sobreviva às seis noites, evolua suas armas, encontre Fragmentos Eternos e destrua os senhores da maldição.</p><div id="currencyDisplay">💠 <span id="currencyValue">0</span> Almas Eternas</div><div id="startButtons"><button id="startBtn">NOVA RUN</button><button id="continueBtn">CONTINUAR</button><button id="storeBtn">LOJA SOMBRIA</button><button id="settingsBtn">OPÇÕES</button></div><div id="controls">WASD/Setas ou Gamepad · Ataques automáticos · ESC pausa</div><div id="mainStatus">Arquivo local · versão 0.3.1 · abre com 2 cliques · salvamento neste navegador</div></div></div>
+
+  <div id="storeScreen"><h2>LOJA SOMBRIA</h2><div id="storeCurrency">💠 <span id="storeCurrencyValue">0</span> Almas Eternas</div><div id="storeGrid"></div><button id="storeBackBtn">VOLTAR</button></div>
+
+  <div id="settingsScreen"><h2>OPÇÕES</h2><div class="settingsPanel">
+    <h3>VÍDEO</h3><div class="settingsGrid">
+      <div class="settingField"><label>Qualidade</label><select id="qualitySelect"><option value="auto">Automático</option><option value="low">Baixo</option><option value="medium">Médio</option><option value="high">Alto</option></select></div>
+      <div class="settingField"><label>Resolução interna</label><select id="resolutionSelect"><option value="auto">Automática</option><option value="640x360">640 × 360</option><option value="854x480">854 × 480</option><option value="1280x720">1280 × 720</option><option value="1600x900">1600 × 900</option><option value="1920x1080">1920 × 1080</option></select></div>
+      <div class="settingField"><label>Renderização</label><select id="rendererSelect"><option value="auto">Automático / GPU</option><option value="accelerated">Priorizar aceleração</option><option value="compatible">Compatibilidade</option></select></div>
+      <div class="settingField"><label>FPS</label><select id="fpsSelect"><option value="60">60 FPS</option><option value="30">30 FPS</option></select></div>
+    </div><div class="toggleRow"><label><input id="fullscreenCheckbox" type="checkbox"> Tela cheia</label><label><input id="damageNumbersCheckbox" type="checkbox"> Números de dano</label><label><input id="shakeCheckbox" type="checkbox"> Tremor de tela</label><label><input id="gamepadCheckbox" type="checkbox"> Gamepad</label></div>
+    <h3>CONTROLES</h3><div class="bindGrid"><span>Cima</span><button id="bindUp">W</button><span>Baixo</span><button id="bindDown">S</button><span>Esquerda</span><button id="bindLeft">A</button><span>Direita</span><button id="bindRight">D</button></div>
+    <div class="settingNote" id="gpuInfo">Detectando recursos gráficos…</div><div class="settingsActions"><button id="settingsBackBtn">VOLTAR</button><button class="primary" id="settingsApplyBtn">APLICAR</button></div>
+  </div></div>
+
+  <div id="loadingScreen"><div class="loadingInner"><div class="loadingSigil"></div><div id="loadingEyebrow">PREPARANDO A PRÓXIMA NOITE</div><div id="loadingTitle">NOITE AMALDIÇOADA</div><div class="loadingDivider"></div><div id="loadingText">Preparando o ritual…</div><div id="loadingBar"><div id="loadingFill"></div></div><div id="loadingPct">0%</div><div class="loadingHint">Carregando ambiente, entidades, névoa e estruturas da próxima noite</div></div></div>
+  <div id="runCurrencyValue" hidden>0</div>
+</div>
+
+<script src="js/core/setup.js"></script>
+<script src="js/systems/audio.js"></script>
+<script src="js/systems/input.js"></script>
+<script src="js/systems/pools.js"></script>
+<script src="js/systems/spatial-grid.js"></script>
+<script src="js/systems/assets.js"></script>
+<script src="js/stages/obstacle-layouts.js"></script>
+<script src="js/stages/stages.js"></script>
+<script src="js/systems/storage.js"></script>
+<script src="js/ui/pause.js"></script>
+<script src="js/ui/video-settings.js"></script>
+<script src="js/game/world.js"></script>
+<script src="js/game/data.js"></script>
+<script src="js/game/state.js"></script>
+<script src="js/entities/player-animation.js"></script>
+<script src="js/systems/run-save.js"></script>
+<script src="js/systems/stage-loader.js"></script>
+<script src="js/game/combat.js"></script>
+<script src="js/game/update.js"></script>
+<script src="js/ui/hud.js"></script>
+<script src="js/game/render.js"></script>
+<script src="js/main.js"></script>
+<script>continueBtn.disabled=!hasRunSave();</script>
+</body></html>
