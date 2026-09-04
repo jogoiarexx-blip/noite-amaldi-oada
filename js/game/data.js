@@ -1,6 +1,6 @@
 "use strict";
 const WEAPON_DEFS={
- adaga:{name:'Adaga Amaldiçoada',icon:'🗡️',maxLevel:8,desc:l=>`Dispara ${1+Math.floor(l/2)} adaga(s) no inimigo mais próximo.`,baseCooldown:55,baseDamage:9},
+ adaga:{name:'Adaga Amaldiçoada',icon:'🗡️',maxLevel:8,desc:l=>`Corte Carmesim: lança ${1+Math.floor(l/2)} lâmina(s) amaldiçoada(s) após o golpe.`,baseCooldown:55,baseDamage:9},
  chicote:{name:'Chicote Sangrento',icon:'🩸',maxLevel:8,desc:l=>`Golpeia em arco à frente, ${l>=5?'atingindo dois lados':'atingindo inimigos próximos'}.`,baseCooldown:70,baseDamage:14},
  orbe:{name:'Orbe Sombrio',icon:'🔮',maxLevel:8,desc:l=>`Orbita causando dano contínuo. ${l>=4?'2 orbes.':'1 orbe.'}`,baseCooldown:0,baseDamage:6},
  grimorio:{name:'Grimório Amaldiçoado',icon:'📖',maxLevel:8,desc:l=>`Lança ${l>=6?'2 livros perseguidores':'um livro perseguidor'} por ciclo.`,baseCooldown:130,baseDamage:16},

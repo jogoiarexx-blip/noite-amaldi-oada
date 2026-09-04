@@ -11,7 +11,7 @@ function loop(ts){
   if(ts-fpsClock>=500){shownFps=Math.round(fpsFrames*1000/(ts-fpsClock||500));fpsFrames=0;fpsClock=ts;perfBadge.textContent=(videoSettings.quality==='auto'?'AUTO/'+effectiveQuality.toUpperCase():effectiveQuality.toUpperCase())+' · '+shownFps+' FPS · '+W+'×'+H+(gpuAvailable?' · GPU OK':'');}
   if(!running)return;
   if(!paused&&!manualPause&&!loadingTransition){
-    gameTime+=dtMs/1000;stageTime+=dtMs/1000;rebuildSpatialGrids();checkStageProgress();updatePlayer(dt);updateWeapons(dt);updateOrbs(dt);updateScythes(dt);updateLanterna(dt);updateProjectiles(dt);updateEnemyProjectiles(dt);updateSlashes(dt);updateEnemies(dt);resolveObstacleCollisions();updateParticles(dt);updatePickups(dt);updateFog(dt);spawnTimer-=dt;const st=getStage(),rate=Math.max(8,st.spawnBase-stageTime*.12);if(spawnTimer<=0&&!stageBossDefeated){spawnTimer=rate;const burst=Math.min(st.burstMax,1+Math.floor(stageTime/25));for(let i=0;i<burst;i++)spawnEnemy();}updateHud();
+    gameTime+=dtMs/1000;stageTime+=dtMs/1000;rebuildSpatialGrids();checkStageProgress();updatePlayer(dt);updateWeapons(dt);updatePendingCombat(dt);updateOrbs(dt);updateScythes(dt);updateLanterna(dt);updateProjectiles(dt);updateEnemyProjectiles(dt);updateSlashes(dt);updateEnemies(dt);resolveObstacleCollisions();updateParticles(dt);updatePickups(dt);updateFog(dt);spawnTimer-=dt;const st=getStage(),rate=Math.max(8,st.spawnBase-stageTime*.12);if(spawnTimer<=0&&!stageBossDefeated){spawnTimer=rate;const burst=Math.min(st.burstMax,1+Math.floor(stageTime/25));for(let i=0;i<burst;i++)spawnEnemy();}updateHud();
   } else if(isPlayerDeathAnimating()) {
     updatePlayerAnimation(dt);
   }

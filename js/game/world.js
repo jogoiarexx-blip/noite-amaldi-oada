@@ -4,7 +4,7 @@ let fogParticles=[];function initFog(){fogParticles=[];const n=effectiveQuality=
 function updateFog(dt){for(const f of fogParticles){f.x+=f.vx*dt;f.y+=f.vy*dt;if(f.x<-150)f.x=W+150;if(f.x>W+150)f.x=-150;if(f.y<-150)f.y=H+150;if(f.y>H+150)f.y=-150;}}
 function drawFog(){for(const f of fogParticles){const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r);g.addColorStop(0,`rgba(90,40,90,${f.alpha})`);g.addColorStop(1,'rgba(90,40,90,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fill();}}
 const OBSTACLE_DEFS={
- tumulo:{r:15,solid:true,glyph:'🪦'},arvoreMorta:{r:22,solid:true,glyph:'🌲'},pedra:{r:14,solid:true,glyph:'🪨'},cruz:{r:10,solid:false,glyph:'✝️'},pilarRuina:{r:18,solid:true,glyph:'🏛️'},escombros:{r:16,solid:true,glyph:'🧱'},
+ tumulo:{r:15,solid:true,glyph:'🪦',drawSize:116},arvoreMorta:{r:22,solid:true,glyph:'🌲',drawSize:162},pedra:{r:14,solid:true,glyph:'🪨',drawSize:132},cruz:{r:10,solid:false,glyph:'✝️',drawSize:92},pilarRuina:{r:18,solid:true,glyph:'🏛️',drawSize:138},escombros:{r:16,solid:true,glyph:'🧱',drawSize:136},
  muroQuebrado:{r:22,solid:true,glyph:'🧱'},estatua:{r:18,solid:true,glyph:'🗿'},braseiro:{r:12,solid:false,glyph:'🔥'},barricada:{r:20,solid:true,glyph:'🚧'},forca:{r:18,solid:true,glyph:'⚰️'},
  sarcofago:{r:22,solid:true,glyph:'⚰️'},pilastra:{r:19,solid:true,glyph:'🏛️'},ossos:{r:9,solid:false,glyph:'🦴'},altar:{r:20,solid:true,glyph:'🕯️'},vela:{r:7,solid:false,glyph:'🕯️'},
  espinhos:{r:17,solid:true,glyph:'🌿'},fonteSangue:{r:24,solid:true,glyph:'⛲'},arbustoMorto:{r:15,solid:true,glyph:'🥀'},
@@ -28,7 +28,7 @@ function generateObstacles(){
    if(effectiveQuality==='low'&&decorativeIndex%3!==0)continue;
    if(effectiveQuality==='medium'&&decorativeIndex%2===0)continue;
   }
-  obstacles.push({x:item.x,y:item.y,r:def.r,type:item.type,solid:def.solid,glyph:def.glyph});
+  obstacles.push({x:item.x,y:item.y,r:def.r,type:item.type,solid:def.solid,glyph:def.glyph,drawSize:def.drawSize||Math.round(def.r*4.4)});
  }
  obstacleGrid.rebuild(obstacles.filter(o=>o.solid));
 }
@@ -39,5 +39,5 @@ function clampPlayerToStage(){
  player.y=clamp(player.y,b.minY+margin,b.maxY-margin);
 }
 function resolveObstacleCollisions(){for(const o of nearbyObstacles(player.x,player.y,90)){const dx=player.x-o.x,dy=player.y-o.y,d=Math.hypot(dx,dy),m=o.r+player.r;if(d<m&&d>.001){player.x+=dx/d*(m-d);player.y+=dy/d*(m-d);}}for(const e of enemies){for(const o of nearbyObstacles(e.x,e.y,82)){const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy),m=o.r+e.r;if(d<m&&d>.001){e.x+=dx/d*(m-d)*.5;e.y+=dy/d*(m-d)*.5;}}}}
-function drawObstacles(){for(const o of obstacles){const [sx,sy]=worldToScreen(o.x,o.y);if(sx<-90||sx>W+90||sy<-90||sy>H+90)continue;ctx.font=o.r*1.85+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=o.solid?1:.62;ctx.fillText(o.glyph||(OBSTACLE_DEFS[o.type]||OBSTACLE_DEFS.pedra).glyph,sx,sy);ctx.globalAlpha=1;}}
+function drawObstacles(){const visible=[];for(const o of obstacles){const [sx,sy]=worldToScreen(o.x,o.y);if(sx<-120||sx>W+120||sy<-120||sy>H+120)continue;visible.push([o,sx,sy]);}visible.sort((a,b)=>(a[0].y+a[0].r)-(b[0].y+b[0].r));for(const [o,sx,sy] of visible){ctx.save();ctx.globalAlpha=o.solid?1:.86;ctx.fillStyle='rgba(0,0,0,.26)';ctx.beginPath();ctx.ellipse(sx,sy+o.r*0.68,o.r*0.88,o.r*0.34,0,0,Math.PI*2);ctx.fill();SpriteManager.drawObstacle(o,sx,sy,o.drawSize,o.glyph||(OBSTACLE_DEFS[o.type]||OBSTACLE_DEFS.pedra).glyph);ctx.restore();ctx.globalAlpha=1;}}
 const player={x:0,y:0,r:14,hp:100,maxHp:100,speed:2.6,level:1,xp:0,xpToNext:8,invuln:0,dmgMult:1,areaMult:1,cooldownMult:1,magnetR:70,regen:0};
