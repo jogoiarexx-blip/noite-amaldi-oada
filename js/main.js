@@ -17,7 +17,7 @@ function loop(ts){
   }
   if(!paused&&!manualPause&&!loadingTransition) updatePlayerAnimation(dt);
   let sx=0,sy=0;if(shakeTime>0){shakeTime-=dt;sx=rand(-shakeMag,shakeMag);sy=rand(-shakeMag,shakeMag);shakeMag*=.9;}else shakeMag=0;
-  ctx.save();ctx.translate(sx,sy);drawBackground();drawObstacles();drawSouls();drawSlashes();drawOrbs();drawScythes();drawLanterna();drawProjectiles();drawEnemyProjectiles();drawEnemies();drawPlayer();drawParticles();drawDamageTexts();ctx.restore();drawVignette();drawBossHealthBar();drawBanner();
+  ctx.save();ctx.translate(sx,sy);drawBackground();drawGroundLayer();drawObstacles();drawSouls();drawSlashes();drawOrbs();drawScythes();drawLanterna();drawProjectiles();drawEnemyProjectiles();drawEnemies();drawPlayer();drawParticles();drawDamageTexts();ctx.restore();drawVignette();drawBossHealthBar();drawBanner();
 }
 startBtn.addEventListener('click',async()=>{ensureAudio();startAmbient();startScreen.style.display='none';resetGame();await runStageLoading(0,true);});
 if(continueBtn)continueBtn.addEventListener('click',()=>{ensureAudio();startAmbient();startScreen.style.display='none';if(!loadRun())startScreen.style.display='flex';});

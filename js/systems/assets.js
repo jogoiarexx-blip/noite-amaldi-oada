@@ -28,6 +28,22 @@ const ASSET_MANIFEST = {
     escombros:'assets/sprites/obstacles/escombros.webp',
     cruz:'assets/sprites/obstacles/cruz.webp',
     pedra:'assets/sprites/obstacles/pedra.webp'
+  },
+  grounds: {
+    stage0: {
+      stoneA:'assets/tiles/stage01/stoneA.webp',
+      stoneB:'assets/tiles/stage01/stoneB.webp',
+      dirt:'assets/tiles/stage01/dirt.webp',
+      moss:'assets/tiles/stage01/moss.webp',
+      decalGrass:'assets/tiles/stage01/decal_grass.webp',
+      decalCrack:'assets/tiles/stage01/decal_crack.webp',
+      decalBlood:'assets/tiles/stage01/decal_blood.webp'
+    }
+  },
+  pickups: {
+    soul:'assets/sprites/pickups/soul.webp',
+    fragment:'assets/sprites/pickups/fragment.webp',
+    chest:'assets/sprites/pickups/chest.webp'
   }
 };
 
@@ -80,6 +96,15 @@ const AssetManager = (() => {
       tasks.push(loadImage('obstacle:'+type, ASSET_MANIFEST.obstacles[type]));
     }
   }
+  function queueGroundAssets(tasks, stage){
+    const manifest = ASSET_MANIFEST.grounds && ASSET_MANIFEST.grounds[stage && stage.id];
+    if(!manifest) return;
+    for(const [key,src] of Object.entries(manifest)) tasks.push(loadImage(`ground:${stage.id}:${key}`, src));
+  }
+  function queuePickupAssets(tasks){
+    if(!ASSET_MANIFEST.pickups) return;
+    for(const [key,src] of Object.entries(ASSET_MANIFEST.pickups)) tasks.push(loadImage('pickup:'+key, src));
+  }
   async function preloadStage(stage) {
     const tasks=[];
     if(stage.background) tasks.push(loadImage('bg:'+stage.id, stage.background));
@@ -87,6 +112,8 @@ const AssetManager = (() => {
     (stage.enemyPool||[]).forEach(k=>queueEnemyAssets(tasks,k));
     if(stage.boss) queueEnemyAssets(tasks, stage.boss);
     queueObstacleAssets(tasks, stage);
+    queueGroundAssets(tasks, stage);
+    queuePickupAssets(tasks);
     Object.keys(playerWeapons||{}).forEach(k=>{ if(ASSET_MANIFEST.weapons[k]) tasks.push(loadImage('weapon:'+k,ASSET_MANIFEST.weapons[k])); });
     await Promise.all(tasks);
   }
@@ -105,6 +132,7 @@ function enemyAnimFrame(count, speedMult, idOffset){
   const t = (typeof gameTime === 'number' ? gameTime : 0) * (speedMult || 8);
   return Math.floor((t + ((idOffset||0)%count)) % count);
 }
+function getGroundAsset(stageId, key){ return AssetManager.get(`ground:${stageId}:${key}`); }
 
 const SpriteManager = {
   drawPlayer(x,y,size,fallback){
@@ -160,6 +188,14 @@ const SpriteManager = {
       ctx.drawImage(img, x - drawSize/2, y - drawSize/2, drawSize, drawSize);
       ctx.imageSmoothingEnabled = prev;
       return true;
+    }
+    ctx.font=size+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(fallback||'?',x,y); return false;
+  },
+  drawPickup(type,x,y,size,fallback){
+    const img = AssetManager.get('pickup:'+type);
+    if(img){
+      const prev=ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(img,x-size/2,y-size/2,size,size); ctx.imageSmoothingEnabled=prev; return true;
     }
     ctx.font=size+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(fallback||'?',x,y); return false;
   }
