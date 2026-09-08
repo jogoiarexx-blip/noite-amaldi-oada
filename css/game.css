@@ -588,3 +588,21 @@ canvas{box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 0 120px rgba(120,20,60
   .weaponIcon{width:40px;height:40px;border-radius:10px}
   .loadingInner{padding:28px 20px 20px}
 }
+
+.weaponThumb{display:block;width:30px;height:30px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 1px 6px rgba(0,0,0,.35));margin:7px auto 0}
+.card .icon img.weaponCardIcon{display:block;width:68px;height:68px;object-fit:contain;margin:0 auto;filter:drop-shadow(0 6px 12px rgba(0,0,0,.28))}
+
+.weaponThumb.passiveThumb{filter:drop-shadow(0 1px 6px rgba(0,0,0,.35)) saturate(1.08)}
+.storeCard .icon img.storeSprite{display:block;width:58px;height:58px;object-fit:contain;margin:0 auto 6px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.28))}
+.storeCard .icon{display:flex;justify-content:center;align-items:center;min-height:66px}
+
+@keyframes iconFloatPulse{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 1px 6px rgba(0,0,0,.35));}50%{transform:translateY(-2px) scale(1.04);filter:drop-shadow(0 0 10px rgba(212,175,55,.22)) drop-shadow(0 1px 8px rgba(0,0,0,.35));}}
+@keyframes iconGlowPulse{0%,100%{opacity:.92}50%{opacity:1}}
+.weaponIcon,.storeCard .icon,.card .icon{position:relative;overflow:visible}
+.weaponIcon::after,.storeCard .icon::after,.card .icon::after{content:'';position:absolute;inset:8px;border-radius:14px;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,0) 65%);mix-blend-mode:screen;opacity:0;animation:iconGlowPulse 3.2s ease-in-out infinite}
+.weaponIcon.passive::after{opacity:.28}
+.storeCard .icon::after,.card .icon::after{opacity:.22}
+.animatedHudThumb,.animatedStoreSprite,.animatedCardIcon{animation:iconFloatPulse 2.6s ease-in-out infinite}
+.passiveThumb,.passiveCardIcon,.animatedStoreSprite{filter:drop-shadow(0 1px 6px rgba(0,0,0,.35)) saturate(1.08)}
+.weaponIcon.evolved .animatedHudThumb{animation-duration:1.9s}
+.storeCard:hover .animatedStoreSprite,.card:hover .animatedCardIcon{animation-duration:1.8s}

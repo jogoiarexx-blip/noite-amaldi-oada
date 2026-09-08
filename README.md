@@ -1,15 +1,15 @@
-# Noite Amaldiçoada 0.4.1
+# Noite Amaldiçoada 0.4.6
 
-Correção de bugs de dano recorrente e flicker do cenário.
+Correção do background da Fase 1.
 
-## Corrigido
-- dano de contato agora tem cooldown individual por inimigo;
-- inimigos são afastados após acertar o player, evitando ficar sobrepostos causando dano recorrente;
-- todo dano recebido mostra a origem na tela;
-- projéteis inimigos ficaram maiores, com brilho e rastro;
-- colisão de projéteis inimigos usa varredura entre frames para evitar hits invisíveis;
-- cenário/obstáculos não entram mais no screen shake;
-- chão da Fase 1 usa uma textura precomposta em pattern, reduzindo dezenas/centenas de draw calls por frame;
-- removida a camada procedural extra das outras fases, deixando os backgrounds estáveis.
+## Bug encontrado
+O `stage01.webp` estava sendo carregado corretamente, mas o `ground_pattern.webp` era RGB/opaco e era desenhado depois do background, cobrindo visualmente o cenário inteiro.
 
-Todos os assets continuam em WebP e o jogo segue compatível com abertura por dois cliques no index.html.
+## Correções
+- o chão da Fase 1 agora funciona como overlay translúcido;
+- transparência também foi aplicada diretamente no `ground_pattern.webp`;
+- intensidade da camada varia por qualidade gráfica para reduzir custo em hardware fraco;
+- o background real `stage01.webp` volta a permanecer visível durante toda a fase;
+- mantido o scrolling do cenário e do piso.
+
+Continua abrindo com 2 cliques no `index.html`.

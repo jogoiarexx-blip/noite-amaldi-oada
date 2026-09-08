@@ -6,9 +6,13 @@ const ASSET_MANIFEST = {
     zumbi:'assets/sprites/enemies/zumbi.webp', aranha:'assets/sprites/enemies/aranha.webp',
     esqueleto:'assets/sprites/enemies/esqueleto.webp', gargula:'assets/sprites/enemies/gargula.webp',
     lobisomem:'assets/sprites/enemies/lobisomem.webp', fantasma:'assets/sprites/enemies/fantasma.webp',
-    necromante:'assets/sprites/enemies/necromante.webp', lorde:'assets/sprites/enemies/lorde.webp',
-    ceifador:'assets/sprites/enemies/ceifador.webp', condessa:'assets/sprites/enemies/condessa.webp',
-    arquimago:'assets/sprites/enemies/arquimago.webp'
+    necromante:'assets/sprites/enemies/necromante.webp'
+  },
+  bosses: {
+    lorde:'assets/sprites/bosses/lorde.webp',
+    ceifador:'assets/sprites/bosses/ceifador.webp',
+    condessa:'assets/sprites/bosses/condessa.webp',
+    arquimago:'assets/sprites/bosses/arquimago.webp'
   },
   weapons: {
     adaga:'assets/sprites/weapons/adaga.webp', chicote:'assets/sprites/weapons/chicote.webp',
@@ -45,11 +49,40 @@ const ASSET_MANIFEST = {
     soul:'assets/sprites/pickups/soul.webp',
     fragment:'assets/sprites/pickups/fragment.webp',
     chest:'assets/sprites/pickups/chest.webp'
+  },
+  passives: {
+    vigor:'assets/sprites/passives/vigor.webp',
+    velocidade:'assets/sprites/passives/velocidade.webp',
+    forca:'assets/sprites/passives/forca.webp',
+    area:'assets/sprites/passives/area.webp',
+    cadencia:'assets/sprites/passives/cadencia.webp',
+    ima:'assets/sprites/passives/ima.webp',
+    regen:'assets/sprites/passives/regen.webp',
+    vampirismo:'assets/sprites/passives/vampirismo.webp',
+    escudo:'assets/sprites/passives/escudo.webp',
+    sorte:'assets/sprites/passives/sorte.webp'
+  },
+  meta: {
+    dano:'assets/sprites/meta/dano.webp',
+    vida:'assets/sprites/meta/vida.webp',
+    velocidade:'assets/sprites/meta/velocidade.webp',
+    recarga:'assets/sprites/meta/recarga.webp',
+    xp:'assets/sprites/meta/xp.webp',
+    ima:'assets/sprites/meta/ima.webp',
+    sorte:'assets/sprites/meta/sorte.webp',
+    armadura:'assets/sprites/meta/armadura.webp'
   }
 };
 
 const PLAYER_ASSET_LAYOUT={ idle:4, walk:6, attack:6, cast:6, hurt:3, death:6 };
 const PLAYER_ASSET_DIRS=['down','left','right','up'];
+const BOSS_ASSET_TYPES=new Set(['lorde','ceifador','condessa','arquimago']);
+const WEAPON_ANIM_LAYOUT={
+  adaga:{frames:4,speed:10}, chicote:{frames:4,speed:11}, orbe:{frames:4,speed:8}, grimorio:{frames:4,speed:7},
+  cruz:{frames:4,speed:6}, foice:{frames:4,speed:9}, lanterna:{frames:4,speed:7}
+};
+function isBossAssetType(type){return BOSS_ASSET_TYPES.has(type);}
+
 const ENEMY_ASSET_LAYOUT={
   morcego:{ mode:'row', rows:{ fly:5, hurt:4, death:6 }, defaultState:'fly' },
   corvo:{ mode:'row', rows:{ fly:6, hurt:4, death:6 }, defaultState:'fly' },
@@ -87,12 +120,15 @@ const AssetManager = (() => {
   }
   function queueEnemyAssets(tasks, type){
     const spec = ENEMY_ASSET_LAYOUT[type];
+    const boss = isBossAssetType(type);
     if(!spec) {
-      if(ASSET_MANIFEST.enemies[type]) tasks.push(loadImage('enemy:'+type, ASSET_MANIFEST.enemies[type]));
+      const manifest = boss ? ASSET_MANIFEST.bosses : ASSET_MANIFEST.enemies;
+      if(manifest && manifest[type]) tasks.push(loadImage('enemy:'+type, manifest[type]));
       return;
     }
+    const root = boss ? 'assets/sprites/bosses' : 'assets/sprites/enemies';
     for(const [row,count] of Object.entries(spec.rows)){
-      for(let i=0;i<count;i++) tasks.push(loadImage(`enemy:${type}:${row}:${i}`, `assets/sprites/enemies/${type}/${row}_${i}.webp`));
+      for(let i=0;i<count;i++) tasks.push(loadImage(`enemy:${type}:${row}:${i}`, `${root}/${type}/${row}_${i}.webp`));
     }
   }
   function queueObstacleAssets(tasks, stage){
@@ -115,6 +151,15 @@ const AssetManager = (() => {
     if(!ASSET_MANIFEST.pickups) return;
     for(const [key,src] of Object.entries(ASSET_MANIFEST.pickups)) tasks.push(loadImage('pickup:'+key, src));
   }
+  function queueWeaponAssets(tasks){
+    for(const [key,src] of Object.entries(ASSET_MANIFEST.weapons||{})){
+      tasks.push(loadImage('weapon:'+key,src));
+      const spec = WEAPON_ANIM_LAYOUT[key];
+      if(spec){
+        for(let i=0;i<spec.frames;i++) tasks.push(loadImage(`weaponAnim:${key}:${i}`, `assets/sprites/weapons/${key}/frame_${i}.webp`));
+      }
+    }
+  }
   async function preloadStage(stage) {
     const tasks=[];
     if(stage.background) tasks.push(loadImage('bg:'+stage.id, stage.background));
@@ -124,7 +169,7 @@ const AssetManager = (() => {
     queueObstacleAssets(tasks, stage);
     queueGroundAssets(tasks, stage);
     queuePickupAssets(tasks);
-    Object.keys(playerWeapons||{}).forEach(k=>{ if(ASSET_MANIFEST.weapons[k]) tasks.push(loadImage('weapon:'+k,ASSET_MANIFEST.weapons[k])); });
+    queueWeaponAssets(tasks);
     await Promise.all(tasks);
   }
   function get(key){ return images.get(key)||null; }
@@ -143,6 +188,9 @@ function enemyAnimFrame(count, speedMult, idOffset){
   return Math.floor((t + ((idOffset||0)%count)) % count);
 }
 function getGroundAsset(stageId, key){ return AssetManager.get(`ground:${stageId}:${key}`); }
+function getWeaponAsset(key){ return AssetManager.get(`weapon:${key}`); }
+function getWeaponAnimAsset(key, frame){ return AssetManager.get(`weaponAnim:${key}:${frame}`) || getWeaponAsset(key); }
+function getWeaponAnimFrameIndex(key, phase){ const spec=WEAPON_ANIM_LAYOUT[key]; if(!spec) return 0; const t=(typeof gameTime==='number'?gameTime:0)*(spec.speed||8) + (phase||0); return Math.floor(t%spec.frames); }
 
 const SpriteManager = {
   drawPlayer(x,y,size,fallback){
@@ -225,5 +273,23 @@ const SpriteManager = {
       ctx.drawImage(img,x-size/2,y-size/2,size,size); ctx.imageSmoothingEnabled=prev; return true;
     }
     ctx.font=size+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(fallback||'?',x,y); return false;
+  },
+  drawWeapon(type,x,y,size,rotation,fallback,frame){
+    const img = frame==null ? AssetManager.get('weapon:'+type) : getWeaponAnimAsset(type, frame);
+    if(img){
+      const prev=ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled=false;
+      ctx.save();
+      ctx.translate(x,y);
+      if(rotation) ctx.rotate(rotation);
+      ctx.drawImage(img,-size/2,-size/2,size,size);
+      ctx.restore();
+      ctx.imageSmoothingEnabled=prev;
+      return true;
+    }
+    ctx.save();
+    if(rotation){ctx.translate(x,y);ctx.rotate(rotation);ctx.translate(-x,-y);}
+    ctx.font=size+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(fallback||'?',x,y);
+    ctx.restore();
+    return false;
   }
 };
