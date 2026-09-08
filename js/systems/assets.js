@@ -37,7 +37,8 @@ const ASSET_MANIFEST = {
       moss:'assets/tiles/stage01/moss.webp',
       decalGrass:'assets/tiles/stage01/decal_grass.webp',
       decalCrack:'assets/tiles/stage01/decal_crack.webp',
-      decalBlood:'assets/tiles/stage01/decal_blood.webp'
+      decalBlood:'assets/tiles/stage01/decal_blood.webp',
+      pattern:'assets/tiles/stage01/ground_pattern.webp'
     }
   },
   pickups: {
@@ -53,7 +54,16 @@ const ENEMY_ASSET_LAYOUT={
   morcego:{ mode:'row', rows:{ fly:5, hurt:4, death:6 }, defaultState:'fly' },
   corvo:{ mode:'row', rows:{ fly:6, hurt:4, death:6 }, defaultState:'fly' },
   zumbi:{ mode:'dir', rows:{ down:6, left:6, right:6, up:6 }, defaultDir:'down' },
-  lorde:{ mode:'boss', rows:{ down:6, left:6, right:6, attack:6 }, defaultDir:'down' }
+  aranha:{ mode:'dir', rows:{ down:4, left:4, right:4, up:4 }, defaultDir:'down' },
+  esqueleto:{ mode:'dir', rows:{ down:4, left:4, right:4, up:4 }, defaultDir:'down' },
+  gargula:{ mode:'mob', rows:{ down:4, left:4, right:4, up:4, dash:4 }, defaultDir:'down' },
+  lobisomem:{ mode:'dir', rows:{ down:4, left:4, right:4, up:4 }, defaultDir:'down' },
+  fantasma:{ mode:'dir', rows:{ down:4, left:4, right:4, up:4 }, defaultDir:'down' },
+  necromante:{ mode:'mob', rows:{ down:4, left:4, right:4, up:4, cast:4 }, defaultDir:'down' },
+  lorde:{ mode:'boss', rows:{ down:6, left:6, right:6, attack:6 }, defaultDir:'down' },
+  ceifador:{ mode:'boss', rows:{ down:6, left:6, right:6, up:6, attack:6, cast:6 }, defaultDir:'down' },
+  condessa:{ mode:'boss', rows:{ down:6, left:6, right:6, up:6, attack:6, cast:6 }, defaultDir:'down' },
+  arquimago:{ mode:'boss', rows:{ down:6, left:6, right:6, up:6, attack:6, cast:6 }, defaultDir:'down' }
 };
 
 const AssetManager = (() => {
@@ -159,22 +169,39 @@ const SpriteManager = {
           const dir = enemyFacingDir(enemy);
           const count = spec.rows[dir] || spec.rows[spec.defaultDir];
           img = AssetManager.get(`enemy:${type}:${dir}:${enemyAnimFrame(count, Math.max(5, enemy.speed*4.5), enemy.id)}`);
+        }else if(spec.mode === 'mob'){
+          let row = null;
+          if(type==='gargula' && enemy.dashing && spec.rows.dash) row='dash';
+          else if(type==='necromante' && typeof enemy.summonTimer==='number' && enemy.summonTimer<34 && spec.rows.cast) row='cast';
+          if(!row){ const dir=enemyFacingDir(enemy); row=spec.rows[dir]?dir:spec.defaultDir; }
+          const count=spec.rows[row];
+          let frame=enemyAnimFrame(count,row==='dash'?12:row==='cast'?9:Math.max(5,enemy.speed*4.2),enemy.id);
+          if(row==='dash' && typeof enemy.dashTimeLeft==='number'){
+            const progress=clamp(1-enemy.dashTimeLeft/18,0,.999); frame=Math.min(count-1,Math.floor(progress*count));
+          }
+          img=AssetManager.get(`enemy:${type}:${row}:${frame}`);
         }else if(spec.mode === 'boss'){
           let row = 'down';
-          if(enemy.isBoss && typeof enemy.atkTimer === 'number' && typeof enemy.atkInterval === 'number' && enemy.atkTimer < enemy.atkInterval * 0.34) row = 'attack';
+          if(enemy.animAction && spec.rows[enemy.animAction]) row = enemy.animAction;
           else {
             const dir = enemyFacingDir(enemy);
             row = spec.rows[dir] ? dir : spec.defaultDir;
           }
           const count = spec.rows[row];
-          img = AssetManager.get(`enemy:${type}:${row}:${enemyAnimFrame(count, row==='attack'?8:6, enemy.id)}`);
+          const speed = (row==='attack'||row==='cast') ? 10 : 6;
+          let frame = enemyAnimFrame(count, speed, enemy.id);
+          if((row==='attack'||row==='cast') && typeof enemy.animActionTimer==='number' && typeof enemy.animActionDuration==='number'){
+            const progress=clamp(1-enemy.animActionTimer/Math.max(1,enemy.animActionDuration),0,.999);
+            frame=Math.min(count-1,Math.floor(progress*count));
+          }
+          img = AssetManager.get(`enemy:${type}:${row}:${frame}`);
         }
       }
     }
     if(!img) img = AssetManager.get('enemy:'+type);
     if(img){
       const prev=ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled=false;
-      const scaleBoost = (type==='lorde') ? 1.42 : (type==='zumbi' ? 1.28 : 1.16);
+      const scaleBoost = type==='lorde'?1.42:(type==='ceifador'||type==='condessa'||type==='arquimago'?1.48:(type==='zumbi'?1.28:(type==='aranha'?1.30:(type==='esqueleto'?1.30:(type==='gargula'?1.38:(type==='lobisomem'?1.36:(type==='fantasma'?1.42:(type==='necromante'?1.42:1.16))))))));
       const drawSize = size * scaleBoost;
       ctx.drawImage(img,x-drawSize/2,y-drawSize/2,drawSize,drawSize); ctx.imageSmoothingEnabled=prev; return true;
     }

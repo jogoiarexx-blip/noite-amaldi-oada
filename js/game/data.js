@@ -40,9 +40,9 @@ const ENEMY_TYPES={
 };
 const BOSS_TYPES={
  lorde:{name:'Lorde Vampiro',hp:800,speed:1.6,dmg:26,r:30,color:'#8a0a2a',xp:60,glyph:'🧛',atkInterval:100,atkSpread:1},
- ceifador:{name:'O Ceifador',hp:1400,speed:1.4,dmg:32,r:34,color:'#2a1a3a',xp:100,glyph:'💀',atkInterval:90,atkSpread:1},
- condessa:{name:'Condessa Sanguinária',hp:2200,speed:1.8,dmg:30,r:32,color:'#a01838',xp:160,glyph:'🧛‍♀️',atkInterval:70,atkSpread:3},
- arquimago:{name:'Arqui-Necromante',hp:3000,speed:1.3,dmg:28,r:34,color:'#3a0a55',xp:220,glyph:'🧙‍♂️',atkInterval:110,atkSpread:2,summon:true}
+ ceifador:{name:'O Ceifador',hp:1400,speed:1.4,dmg:32,r:28,color:'#2a1a3a',xp:100,glyph:'💀',atkInterval:90,atkSpread:1},
+ condessa:{name:'Condessa Sanguinária',hp:2200,speed:1.8,dmg:30,r:27,color:'#a01838',xp:160,glyph:'🧛‍♀️',atkInterval:70,atkSpread:3},
+ arquimago:{name:'Arqui-Necromante',hp:3000,speed:1.3,dmg:28,r:29,color:'#3a0a55',xp:220,glyph:'🧙‍♂️',atkInterval:110,atkSpread:2,summon:true}
 };
 let gameTime=0,stageTime=0,killCount=0,eliteKills=0,bossKills=0,spawnTimer=0,running=false,paused=false,xpGainMult=1;
 let currentStage=0,stageBossSpawned=false,stageBossDefeated=false,stageCompleting=false,runFragments=0;
